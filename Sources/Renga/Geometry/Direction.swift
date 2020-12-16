@@ -11,7 +11,7 @@ public struct Direction: Codable, Hashable {
     guard
       abs(self.x.rawValue) + abs(self.y.rawValue) + abs(self.z.rawValue) == 1
     else {
-      throw GeometryError.invalidFace(x: x, y: y, z: z)
+      throw GeometryError.invalidDirection(x: x, y: y, z: z)
     }
   }
 
