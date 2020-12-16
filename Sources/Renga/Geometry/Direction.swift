@@ -24,17 +24,22 @@ public struct Direction: Codable, Hashable {
 
     try self.init(x: directions[0], y: directions[1], z: directions[2])
   }
-}
 
-extension Direction: ExpressibleByStringLiteral {
+  init(integerLiteral value: Int) {
+    let magnitude: Magnitude = value > 0
+      ? .positive
+      : .negative
 
-  public init(stringLiteral: String) {
-    let directions = Array(stringLiteral)
-      .map {
-        Magnitude(unicodeScalarLiteral: $0)
-      }
-
-    try! self.init(directions: directions)
+    switch abs(value) {
+    case 4:
+      try! self.init(z: magnitude)
+    case 2:
+      try! self.init(y: magnitude)
+    case 1:
+      try! self.init(z: magnitude)
+    default:
+      preconditionFailure("Invalid direction specifier")
+    }
   }
 
 }

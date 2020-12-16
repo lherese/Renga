@@ -14,7 +14,7 @@ public struct Offset: Codable, Hashable {
   }
 
   public static func + (offset: Self, face: Face) -> Self {
-    offset + face.rawValue
+    offset + face.direction
   }
 
   public static func + (start: Self, path: Path) -> Self {

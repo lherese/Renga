@@ -14,7 +14,7 @@ public struct Path: Codable, Hashable {
   }
 
   public static func + (path: Self, face: Face) -> Self {
-    path + face.rawValue
+    path + face.direction
   }
 }
 
@@ -33,7 +33,7 @@ public extension Path {
   }
 
   init(_ faces: [Face]) {
-    self.init(faces.map(\.rawValue))
+    self.init(faces.map(\.direction))
   }
 
   init(_ faces: Face...) {
