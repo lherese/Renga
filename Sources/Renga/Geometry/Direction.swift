@@ -32,7 +32,7 @@ public struct Direction: Codable, Hashable {
 
     switch abs(value) {
     case 4:
-      try! self.init(z: magnitude)
+      try! self.init(x: magnitude)
     case 2:
       try! self.init(y: magnitude)
     case 1:

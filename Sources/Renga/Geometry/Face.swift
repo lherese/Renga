@@ -1,4 +1,4 @@
-public enum Face: Int, Hashable, Codable, RawRepresentable {
+public enum Face: Int, Hashable, Codable, RawRepresentable, CaseIterable {
   case top    =  0b001
   case north  =  0b100
   case east   = -0b010
