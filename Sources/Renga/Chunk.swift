@@ -11,11 +11,24 @@ public class Chunk<Block: Voxel> {
   var blocks: [Block?] = Array(repeating: nil, count: Renga.blockCount)
   var defaultBlock: Block? = nil
 
+  let frame = Frame(
+    least: Offset(x: 0, y: 0, z: 0),
+    most: Offset(x: Renga.blockPitch, y: Renga.blockPitch, z: Renga.blockPitch)
+  )
+
   public internal(set) subscript(offset: Offset) -> Block? {
     get {
-      blocks[linearize(offset: offset)]
+      frame.contains(offset: offset)
+        ? blocks[linearize(offset: offset)]
+        : nil
     }
     set (block) {
+      guard
+        frame.contains(offset: offset)
+      else {
+        preconditionFailure("Invalid block coordinates \(offset)")
+      }
+
       blocks[linearize(offset: offset)] = block
     }
   }
