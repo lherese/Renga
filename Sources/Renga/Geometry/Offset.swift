@@ -1,7 +1,7 @@
 public struct Offset: Codable, Hashable {
-  let x: Int
-  let y: Int
-  let z: Int
+  public let x: Int
+  public let y: Int
+  public let z: Int
 
   public init(x: Int = 0, y: Int = 0, z: Int = 0) {
     self.x = x
