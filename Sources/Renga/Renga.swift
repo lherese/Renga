@@ -15,3 +15,7 @@ public enum Renga {
   }
 
 }
+
+public enum RengaError: Error {
+  case noOffsetWhenErasingBlock
+}

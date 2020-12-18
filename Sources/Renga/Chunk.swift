@@ -17,14 +17,14 @@ public class Chunk<Block: Voxel> {
     public let exposedFaces: Set<Face>
   }
 
-  public private(set) var geometry: [GeometryFragment]? = nil
+  public private(set) var geometry: [GeometryFragment] = []
 
   let frame = Frame(
     least: Offset(x: 0, y: 0, z: 0),
     most: Offset(x: Renga.blockPitch, y: Renga.blockPitch, z: Renga.blockPitch)
   )
 
-  public internal(set) subscript(offset: Offset) -> Block? {
+  public private(set) subscript(offset: Offset) -> Block? {
     get {
       frame.contains(offset: offset)
         ? blocks[linearize(offset: offset)] ?? defaultBlock
@@ -38,19 +38,10 @@ public class Chunk<Block: Voxel> {
       }
 
       blocks[linearize(offset: offset)] = block
-
-      geometry = allBlocks
-        .compactMap {
-          let faces = $0.exposedFaces
-
-          return faces.count > 0
-            ? GeometryFragment(block: $0, offset: $0.offset, exposedFaces: faces)
-            : nil
-        }
     }
   }
 
-  public internal(set) subscript(x: Int, y: Int, z: Int) -> Block? {
+  public private(set) subscript(x: Int, y: Int, z: Int) -> Block? {
     get {
       self[Offset(x: x, y: y, z: z)]
     }
@@ -81,6 +72,59 @@ extension Chunk {
 
   func neighbours(block: Block) -> [Face: Block?] {
     neighbours(offset: block.offset)
+  }
+
+  private func updateGeometry() {
+    geometry = allBlocks
+      .compactMap {
+        let faces = $0.exposedFaces
+
+        return faces.count > 0
+          ? GeometryFragment(block: $0, offset: $0.offset, exposedFaces: faces)
+          : nil
+      }
+  }
+
+  private func doCommit(block: Block?, offset: Offset) -> Block? {
+    defer {
+      self[offset] = block
+    }
+
+    return self[offset]
+  }
+}
+
+public extension Chunk {
+
+  @discardableResult
+  func commit(block: Block?, offset: Offset? = nil) throws -> Block? {
+    guard
+      let offset = offset ?? block?.offset
+    else {
+      throw RengaError.noOffsetWhenErasingBlock
+    }
+
+    defer {
+      updateGeometry()
+    }
+
+    return doCommit(block: block, offset: offset)
+  }
+
+  @discardableResult
+  func commit(_ blocks: [Block]) -> [Block?] {
+    defer {
+      updateGeometry()
+    }
+
+    return blocks.map {
+      doCommit(block: $0, offset: $0.offset)
+    }
+  }
+
+  @discardableResult
+  func commit(_ blocks: Block...) -> [Block?] {
+    commit(blocks)
   }
 
 }

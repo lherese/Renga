@@ -11,15 +11,6 @@ public protocol Voxel {
 
 public extension Voxel {
 
-  @discardableResult
-  func commit() -> Self? {
-    let oldBlock = chunk[offset]
-
-    chunk[offset] = self
-
-    return oldBlock
-  }
-
   var neighbours: [Face: Self?] {
     chunk.neighbours(block: self)
   }

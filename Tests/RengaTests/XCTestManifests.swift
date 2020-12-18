@@ -7,7 +7,8 @@ extension ChunkTests {
     // to regenerate.
     static let __allTests__ChunkTests = [
         ("testAccess", testAccess),
-        ("testExposed", testExposed),
+        ("testEraseBlock", testEraseBlock),
+        ("testGeometry", testGeometry),
         ("testNeighbours", testNeighbours),
         ("testReplace", testReplace),
     ]

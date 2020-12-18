@@ -52,17 +52,19 @@ final class ChunkTests: XCTestCase {
     let secondBlock = TestVoxel(chunk: chunk, offset: testOffset)
 
     XCTAssertNil(chunk[testOffset])
-    XCTAssertNil(firstBlock.commit())
+    XCTAssertNil(try? chunk.commit(block: firstBlock))
     XCTAssertEqual(chunk[testOffset], firstBlock)
-    XCTAssertEqual(secondBlock.commit(), firstBlock)
+    XCTAssertEqual(try? chunk.commit(block: secondBlock), firstBlock)
     XCTAssertEqual(chunk[testOffset], secondBlock)
   }
 
   func testAccess() {
     let chunk = TestChunk()
 
-    TestVoxel(chunk: chunk, offset: testOffset).commit()
-    TestVoxel(chunk: chunk, offset: testOffset + .top).commit()
+    chunk.commit(
+      TestVoxel(chunk: chunk, offset: testOffset),
+      TestVoxel(chunk: chunk, offset: testOffset + .top)
+    )
 
     var n = 0
 
@@ -83,7 +85,7 @@ final class ChunkTests: XCTestCase {
     let chunk = TestChunk()
 
     let firstBlock = TestVoxel(chunk: chunk, offset: testOffset)
-    firstBlock.commit()
+    chunk.commit(firstBlock)
 
     XCTAssertEqual(firstBlock.neighbours, [
       .top: nil,
@@ -95,7 +97,7 @@ final class ChunkTests: XCTestCase {
     ])
 
     let secondBlock = TestVoxel(chunk: chunk, offset: testOffset + .up)
-    secondBlock.commit()
+    chunk.commit(secondBlock)
 
     XCTAssertEqual(firstBlock.neighbours, [
       .top: secondBlock,
@@ -110,9 +112,23 @@ final class ChunkTests: XCTestCase {
   func testGeometry() {
     let chunk = TestChunk()
 
-    TestVoxel(chunk: chunk, offset: testOffset).commit()
+    chunk.commit(TestVoxel(chunk: chunk, offset: testOffset))
 
-    XCTAssertEqual(chunk.geometry!.count, 1)
+    XCTAssertEqual(chunk.geometry.count, 1)
+  }
+
+  func testEraseBlock() throws {
+    let chunk = TestChunk()
+
+    XCTAssertThrowsError(try chunk.commit(block: nil)) { error in
+      XCTAssertEqual(error as? RengaError, RengaError.noOffsetWhenErasingBlock)
+    }
+
+    try chunk.commit(block: TestVoxel(chunk: chunk, offset: testOffset))
+    XCTAssertEqual(chunk.geometry.count, 1)
+
+    try chunk.commit(block: nil, offset: testOffset)
+    XCTAssertEqual(chunk.geometry.count, 0)
   }
 
 }
