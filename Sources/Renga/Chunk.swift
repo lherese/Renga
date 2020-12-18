@@ -11,6 +11,14 @@ public class Chunk<Block: Voxel> {
   var blocks: [Block?] = Array(repeating: nil, count: Renga.blockCount)
   var defaultBlock: Block? = nil
 
+  public struct GeometryFragment {
+    public let block: Block
+    public let offset: Offset
+    public let exposedFaces: Set<Face>
+  }
+
+  public private(set) var geometry: [GeometryFragment]? = nil
+
   let frame = Frame(
     least: Offset(x: 0, y: 0, z: 0),
     most: Offset(x: Renga.blockPitch, y: Renga.blockPitch, z: Renga.blockPitch)
@@ -19,7 +27,7 @@ public class Chunk<Block: Voxel> {
   public internal(set) subscript(offset: Offset) -> Block? {
     get {
       frame.contains(offset: offset)
-        ? blocks[linearize(offset: offset)]
+        ? blocks[linearize(offset: offset)] ?? defaultBlock
         : nil
     }
     set (block) {
@@ -30,6 +38,15 @@ public class Chunk<Block: Voxel> {
       }
 
       blocks[linearize(offset: offset)] = block
+
+      geometry = allBlocks
+        .compactMap {
+          let faces = $0.exposedFaces
+
+          return faces.count > 0
+            ? GeometryFragment(block: $0, offset: $0.offset, exposedFaces: faces)
+            : nil
+        }
     }
   }
 
@@ -45,14 +62,7 @@ public class Chunk<Block: Voxel> {
   public init() { }
 
   public var allBlocks: [Block] {
-    blocks.compactMap { $0 }
-  }
-
-  public var exposedBlocks: [Block] {
-    allBlocks
-      .filter {
-        $0.exposedFaces.count > 0
-      }
+    blocks.compactMap { $0 ?? defaultBlock }
   }
 
 }

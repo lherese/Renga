@@ -107,23 +107,12 @@ final class ChunkTests: XCTestCase {
     ])
   }
 
-  func testExposed() {
+  func testGeometry() {
     let chunk = TestChunk()
 
-    let firstBlock = TestVoxel(chunk: chunk, offset: testOffset)
-    firstBlock.commit()
+    TestVoxel(chunk: chunk, offset: testOffset).commit()
 
-    XCTAssertEqual(firstBlock.exposedFaces, Set(Face.allCases))
-
-    let secondBlock = TestVoxel(chunk: chunk, offset: testOffset + .up)
-    secondBlock.commit()
-
-    let thirdBlock = TestVoxel(chunk: chunk, offset: testOffset + .down, transparent: true)
-    thirdBlock.commit()
-
-    XCTAssertEqual(firstBlock.exposedFaces, Set(Face.allCases).subtracting([.top]))
-
-    XCTAssertEqual(Set(chunk.exposedBlocks), [firstBlock, secondBlock, thirdBlock])
+    XCTAssertEqual(chunk.geometry!.count, 1)
   }
 
 }
